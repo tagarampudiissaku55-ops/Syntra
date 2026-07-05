@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import Dict, Any
 from app.ai.providers.manager import provider_manager
 from app.templates.employee_onboarding.prompts import (
@@ -36,20 +37,21 @@ class DocumentGenerationService:
         """
         logger.info("Generating onboarding package documents...")
         
-        # In a real system, these could run concurrently using asyncio.gather.
-        # Running sequentially for clarity in execution logs.
-        email = await self.generate_document(WELCOME_EMAIL_PROMPT, context)
-        checklist = await self.generate_document(EMPLOYEE_CHECKLIST_PROMPT, context)
-        schedule = await self.generate_document(FIRST_WEEK_PLAN_PROMPT, context)
-        equipment = await self.generate_document(EQUIPMENT_REQUEST_PROMPT, context)
-        summary = await self.generate_document(HR_APPROVAL_SUMMARY_PROMPT, context)
+        # Running concurrently for massive speedup
+        results = await asyncio.gather(
+            self.generate_document(WELCOME_EMAIL_PROMPT, context),
+            self.generate_document(EMPLOYEE_CHECKLIST_PROMPT, context),
+            self.generate_document(FIRST_WEEK_PLAN_PROMPT, context),
+            self.generate_document(EQUIPMENT_REQUEST_PROMPT, context),
+            self.generate_document(HR_APPROVAL_SUMMARY_PROMPT, context)
+        )
         
         return {
-            "welcome_email": email,
-            "checklist": checklist,
-            "first_week_plan": schedule,
-            "equipment_request": equipment,
-            "hr_summary": summary
+            "welcome_email": results[0],
+            "checklist": results[1],
+            "first_week_plan": results[2],
+            "equipment_request": results[3],
+            "hr_summary": results[4]
         }
 
 document_generation_service = DocumentGenerationService()
