@@ -53,7 +53,7 @@ class SequentialExecutionStrategy(BaseExecutionStrategy):
         
         # 2. Execute sequentially
         # Add slight initial delay to allow frontend SSE connection to establish (demo purposes)
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(0.2)
         
         for node_id in sorted_nodes:
             node = workflow.graph.nodes[node_id]
@@ -130,8 +130,8 @@ class SequentialExecutionStrategy(BaseExecutionStrategy):
                 logger.error(f"Error executing node {node.agent_id}: {e}")
                 output = {"status": "failed", "error": str(e)}
                 
-            # Simulated delay to show node in 'running' state in the UI
-            await asyncio.sleep(1.5)
+            # Reduced simulated delay for faster execution
+            await asyncio.sleep(0.1)
                 
             await event_bus.publish("NodeCompleted", {"session_id": session_id, "node": node_name, "output": output})
             results[node_id] = output
