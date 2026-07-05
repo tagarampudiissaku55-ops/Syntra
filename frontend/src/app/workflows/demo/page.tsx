@@ -10,7 +10,7 @@ import { formatSimpleMarkdown } from "@/lib/formatMarkdown";
 
 export default function DemoWorkflow() {
   const [documents, setDocuments] = useState<Record<string, string> | null>(null);
-  const [approvalRequested, setApprovalRequested] = useState<any>(null);
+  const [approvalRequested, setApprovalRequested] = useState<unknown>(null);
   const [isApproving, setIsApproving] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
   const [typedDocs, setTypedDocs] = useState<Record<string, string>>({});

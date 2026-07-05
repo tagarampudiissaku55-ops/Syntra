@@ -1,7 +1,7 @@
 export function formatSimpleMarkdown(text: string) {
   if (!text) return "";
   
-  let formatted = text
+  const formatted = text
     // Replace **bold** with <strong>bold</strong>
     .replace(/\*\*(.*?)\*\*/g, '<strong class="text-amber-300">$1</strong>')
     // Replace * bullet points with HTML bullet points and line breaks
