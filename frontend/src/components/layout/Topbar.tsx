@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, MonitorPlay, MonitorOff, ChevronDown, Wand2 } from "lucide-react";
+import { Search, MonitorPlay, MonitorOff, ChevronDown, Wand2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -108,13 +108,6 @@ export function Topbar() {
           title={isPresentationMode ? "Disable Presentation Mode" : "Enable Presentation Mode"}
         >
           {isPresentationMode ? <MonitorOff className="h-4 w-4" /> : <MonitorPlay className="h-4 w-4" />}
-        </button>
-
-        <div className="h-4 w-px bg-zinc-800"></div>
-
-        <button type="button" className="text-zinc-400 hover:text-zinc-100 transition-colors">
-          <span className="sr-only">View notifications</span>
-          <Bell className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
     </header>
