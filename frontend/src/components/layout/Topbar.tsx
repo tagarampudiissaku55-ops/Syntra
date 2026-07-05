@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Search, MonitorPlay, MonitorOff, ChevronDown, Wand2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 
@@ -9,6 +9,19 @@ export function Topbar() {
   const router = useRouter();
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [showDemoMenu, setShowDemoMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (isPresentationMode) {
@@ -30,10 +43,22 @@ export function Topbar() {
   return (
     <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl px-4 sm:px-6 lg:px-8">
       <div className="flex flex-1 items-center gap-x-4">
-        <div className="flex w-full max-w-sm items-center gap-x-3 rounded-full bg-zinc-900 px-3 py-1.5 border border-zinc-800/50">
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (searchQuery.trim()) {
+              router.push(`/workflows/preview?q=${encodeURIComponent(searchQuery)}`);
+              setSearchQuery("");
+            }
+          }}
+          className="flex w-full max-w-sm items-center gap-x-3 rounded-full bg-zinc-900 px-3 py-1.5 border border-zinc-800/50"
+        >
           <Search className="h-4 w-4 text-zinc-500" />
           <input
+            ref={inputRef}
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent text-sm text-zinc-300 placeholder:text-zinc-500 focus:outline-none"
             placeholder="Search missions, knowledge..."
           />
@@ -41,7 +66,7 @@ export function Topbar() {
             <span>⌘</span>
             <span>K</span>
           </div>
-        </div>
+        </form>
       </div>
       <div className="flex items-center gap-x-4">
         
