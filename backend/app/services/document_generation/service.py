@@ -70,26 +70,34 @@ class DocumentGenerationService:
         Format beautifully using Markdown (bolding, short bullet points).
         """
         
-        email_prompt = f"""
-        You are an expert AI communication assistant.
+        slack_prompt = f"""
+        You are an API formatting assistant.
+        Task: "{request}"
+        Generate a JSON mock payload representing a Slack incoming webhook notification summarizing the task completion.
+        Do NOT wrap in markdown code blocks, just return raw JSON string representing the payload.
+        Make it look like a real Slack blocks payload with headers and fields.
+        """
         
-        Task Description:
-        "{request}"
-        
-        Instructions:
-        Draft a brief, professional notification email indicating that the task has been completed and is pending review or finalized.
+        gmail_prompt = f"""
+        You are an API formatting assistant.
+        Task: "{request}"
+        Generate a JSON mock payload representing a Gmail API `users.messages.send` request.
+        Do NOT wrap in markdown code blocks, just return raw JSON string.
+        Include 'to', 'subject', and 'body' fields.
         """
         
         results = await asyncio.gather(
             self.provider.generate(prompt=main_prompt),
             self.provider.generate(prompt=summary_prompt),
-            self.provider.generate(prompt=email_prompt)
+            self.provider.generate(prompt=slack_prompt),
+            self.provider.generate(prompt=gmail_prompt)
         )
         
         return {
             "Main_Report": results[0].content,
             "Executive_Summary": results[1].content,
-            "Notification_Email": results[2].content
+            "Slack_Integration_Payload": results[2].content,
+            "Gmail_API_Payload": results[3].content
         }
 
     async def generate_onboarding_package(self, context: str) -> Dict[str, str]:

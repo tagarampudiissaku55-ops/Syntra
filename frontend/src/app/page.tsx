@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Sparkles, Building2, Briefcase, FileText, Code2, MoveRight, Activity, ShieldCheck, Layers, Cpu } from "lucide-react";
+import { Search, Sparkles, Building2, Briefcase, FileText, Code2, MoveRight, Activity, ShieldCheck, Layers, Cpu, Mic } from "lucide-react";
 import { motion } from "framer-motion";
 
 
@@ -75,6 +75,57 @@ export default function MissionControl() {
       border: "border-cyan-500/20"
     }
   ];
+
+  const [isListening, setIsListening] = useState(false);
+
+  const handleVoiceCommand = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert("Speech recognition is not supported in this browser. Please use Chrome.");
+      return;
+    }
+
+    const SpeechRecognition = (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+    
+    recognition.onresult = (event: any) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+      
+      setCommand(finalTranscript || interimTranscript);
+    };
+    
+    recognition.onerror = (event: any) => {
+      console.error(event.error);
+      setIsListening(false);
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    
+    if (isListening) {
+      // We can't easily stop it without keeping the instance, 
+      // but it naturally stops when they stop speaking.
+      setIsListening(false);
+    } else {
+      recognition.start();
+    }
+  };
 
   const handleCommandSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,6 +216,18 @@ export default function MissionControl() {
               placeholder="E.g., Audit our Q3 financial reports against the new compliance policy..."
               className="flex-1 bg-transparent px-4 py-4 text-xl text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none transition-all"
             />
+            <button
+              type="button"
+              onClick={handleVoiceCommand}
+              className={`mr-2 p-3 rounded-xl transition-all flex items-center justify-center ${
+                isListening 
+                  ? 'bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.5)] animate-pulse' 
+                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-800 dark:hover:text-zinc-300'
+              }`}
+              title="Voice Command"
+            >
+              {isListening ? <Mic className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+            </button>
             <button 
               type="submit"
               className="mr-2 rounded-xl bg-indigo-600 px-6 py-3 font-medium text-white shadow-lg transition-all hover:bg-indigo-500 hover:shadow-indigo-500/25 active:scale-95 flex items-center text-lg"

@@ -14,20 +14,32 @@ export default function DemoWorkflow() {
   const [isApproving, setIsApproving] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
   const [typedDocs, setTypedDocs] = useState<Record<string, string>>({});
+  const [auditLogs, setAuditLogs] = useState<{time: string, message: string, type: string}[]>([]);
+
+  const addLog = (message: string, type: 'action' | 'success' | 'error' = 'success') => {
+    const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
+    setAuditLogs(prev => [...prev, { time, message, type }]);
+  };
 
   useEffect(() => {
     eventStream.connect();
     
+    addLog("Initializing execution environment...", "action");
+
     const unsubscribeStarted = eventStream.on("WorkflowStarted", (data) => {
       console.log("Real-time Event: WorkflowStarted", data);
+      addLog(`Mission commenced: ${(data as any)?.session_id || 'new session'}`, "success");
     });
 
     const unsubscribeCompleted = eventStream.on("NodeCompleted", (data) => {
       console.log("Real-time Event: NodeCompleted", data);
+      const node = (data as any)?.node_id || 'Task';
+      addLog(`Agent completed ${node.replace('_', ' ')}. Data securely routed.`, "success");
     });
 
     const unsubscribeApproval = eventStream.on("ApprovalRequested", (data: unknown) => {
       console.log("Real-time Event: ApprovalRequested", data);
+      addLog("Execution paused. Requesting human-in-the-loop authorization.", "error");
       setApprovalRequested(data);
       const approvalData = data as { generated_documents?: Record<string, string> };
       if (approvalData?.generated_documents) {
@@ -47,35 +59,9 @@ export default function DemoWorkflow() {
   useEffect(() => {
     if (!documents) return;
     
-    const keys = Object.keys(documents);
-    let currentKeyIdx = 0;
-    let currentCharIdx = 0;
-    
-    setTypedDocs({}); // Reset
-    
-    const interval = setInterval(() => {
-      if (currentKeyIdx >= keys.length) {
-        clearInterval(interval);
-        return;
-      }
-      
-      const key = keys[currentKeyIdx];
-      const fullText = documents[key];
-      
-      setTypedDocs(prev => ({
-        ...prev,
-        [key]: fullText.substring(0, currentCharIdx + 1)
-      }));
-      
-      currentCharIdx += 5; // Type 5 chars at a time for speed
-      
-      if (currentCharIdx >= fullText.length) {
-        currentKeyIdx++;
-        currentCharIdx = 0;
-      }
-    }, 20);
-    
-    return () => clearInterval(interval);
+    // Instead of interval typing which can be buggy with state batching,
+    // just set the typed docs to the full documents immediately for now.
+    setTypedDocs(documents);
   }, [documents]);
 
   return (
@@ -88,17 +74,17 @@ export default function DemoWorkflow() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-md"
+          className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-6 backdrop-blur-md"
         >
           <div className="flex items-center justify-between mb-2">
             <div className="inline-flex items-center rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-0.5 text-xs font-semibold text-indigo-400">
               <Sparkles className="mr-1 h-3 w-3" />
               Active Mission
             </div>
-            <span className="text-xs font-mono text-zinc-500">Session ID: exec-{(approvalRequested as { session_id?: string })?.session_id || "demo"}</span>
+            <span className="text-xs font-mono text-zinc-500 dark:text-zinc-500">Session ID: exec-{(approvalRequested as { session_id?: string })?.session_id || "demo"}</span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">Workflow Execution</h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Workflow Execution</h1>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
             Running business orchestration logic based on retrieved enterprise knowledge.
           </p>
         </motion.div>
@@ -110,7 +96,7 @@ export default function DemoWorkflow() {
           transition={{ delay: 0.1 }}
           className="flex flex-col gap-2"
         >
-          <h2 className="text-sm font-medium tracking-widest text-zinc-500 uppercase px-1">Execution Graph</h2>
+          <h2 className="text-sm font-medium tracking-widest text-zinc-500 dark:text-zinc-500 uppercase px-1">Execution Graph</h2>
           <DAGViewer />
         </motion.div>
         
@@ -119,38 +105,73 @@ export default function DemoWorkflow() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="flex-1 rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-xl overflow-y-auto min-h-[600px] max-h-[800px]"
+          className="flex-1 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 p-6 shadow-xl overflow-y-auto min-h-[600px] max-h-[800px]"
         >
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-zinc-800">
+          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
             <BrainCircuit className="h-5 w-5 text-indigo-400" />
-            <h3 className="text-lg font-medium text-zinc-200">Generated Artifacts</h3>
+            <h3 className="text-lg font-medium text-zinc-800 dark:text-zinc-200">Generated Artifacts</h3>
           </div>
           
-          <div className="space-y-6 text-sm text-zinc-300 leading-relaxed">
+          <div className="space-y-6 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
             {!documents ? (
               <div className="space-y-4">
-                <div className="animate-pulse bg-zinc-900 h-4 w-3/4 rounded"></div>
-                <div className="animate-pulse bg-zinc-900 h-4 w-full rounded"></div>
-                <div className="animate-pulse bg-zinc-900 h-4 w-5/6 rounded"></div>
+                <div className="animate-pulse bg-zinc-100 dark:bg-zinc-900 h-4 w-3/4 rounded"></div>
+                <div className="animate-pulse bg-zinc-100 dark:bg-zinc-900 h-4 w-full rounded"></div>
+                <div className="animate-pulse bg-zinc-100 dark:bg-zinc-900 h-4 w-5/6 rounded"></div>
               </div>
             ) : (
-              Object.entries(typedDocs).map(([key, content], idx) => (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  key={idx} 
-                  className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 shadow-inner"
-                >
-                   <h4 className="font-semibold text-zinc-100 mb-2 capitalize flex items-center gap-2">
-                      {key.replace("_", " ")}
-                      {content.length < documents[key].length && (
-                        <span className="inline-block h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
-                      )}
-                   </h4>
-                   <pre className="whitespace-pre-wrap font-sans text-zinc-400 text-xs">{content}</pre>
-                </motion.div>
-              ))
+              Object.entries(typedDocs).map(([key, content], idx) => {
+                const isIntegration = key.includes("Integration_Payload") || key.includes("API_Payload");
+                let formattedContent = content;
+                
+                // Try to prettify JSON for integrations
+                if (isIntegration) {
+                  try {
+                    const cleanJson = content.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const obj = JSON.parse(cleanJson);
+                    formattedContent = JSON.stringify(obj, null, 2);
+                  } catch(e) {
+                    // Fallback to raw if parsing fails
+                  }
+                }
+
+                return (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    key={idx} 
+                    className={`p-4 rounded-xl border shadow-inner ${
+                      key.includes("Slack") 
+                        ? "border-purple-500/30 bg-purple-500/5 dark:bg-purple-900/10"
+                        : key.includes("Gmail")
+                        ? "border-rose-500/30 bg-rose-500/5 dark:bg-rose-900/10"
+                        : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50"
+                    }`}
+                  >
+                     <h4 className={`font-semibold mb-2 capitalize flex items-center gap-2 ${
+                       key.includes("Slack") ? "text-purple-600 dark:text-purple-400" :
+                       key.includes("Gmail") ? "text-rose-600 dark:text-rose-400" :
+                       "text-zinc-900 dark:text-zinc-100"
+                     }`}>
+                        {key.replace(/_/g, " ")}
+                        {!isIntegration && content.length < documents[key].length && (
+                          <span className="inline-block h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
+                        )}
+                        {isIntegration && (
+                          <span className="ml-auto text-xs px-2 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono uppercase">
+                            JSON Payload
+                          </span>
+                        )}
+                     </h4>
+                     <pre className={`whitespace-pre-wrap font-sans text-xs ${
+                       isIntegration ? "font-mono text-zinc-600 dark:text-zinc-400 p-3 bg-zinc-100 dark:bg-zinc-950 rounded-lg overflow-x-auto" : "text-zinc-600 dark:text-zinc-400"
+                     }`}>
+                        {formattedContent}
+                     </pre>
+                  </motion.div>
+                );
+              })
             )}
           </div>
         </motion.div>
@@ -165,14 +186,45 @@ export default function DemoWorkflow() {
       >
         
         {/* Timeline Panel */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 backdrop-blur-md shadow-xl">
-          <h2 className="text-sm font-medium tracking-widest text-zinc-500 uppercase mb-6">Mission Timeline</h2>
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/40 p-5 backdrop-blur-md shadow-xl">
+          <h2 className="text-sm font-medium tracking-widest text-zinc-500 dark:text-zinc-500 uppercase mb-6">Mission Timeline</h2>
           <ExecutionTimeline />
         </div>
 
+        {/* Audit Log Terminal Panel */}
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/40 p-5 backdrop-blur-md shadow-xl flex flex-col h-64">
+           <div className="flex items-center justify-between mb-4">
+             <h2 className="text-sm font-medium tracking-widest text-zinc-500 dark:text-zinc-500 uppercase flex items-center">
+               <Fingerprint className="w-4 h-4 mr-2" />
+               Live Audit Logs
+             </h2>
+             <span className="flex h-2 w-2 relative">
+               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+             </span>
+           </div>
+           
+           <div className="flex-1 bg-zinc-950 rounded-xl p-4 overflow-y-auto font-mono text-[10px] text-zinc-400 space-y-2 shadow-inner border border-zinc-800 relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+             {auditLogs.length === 0 ? (
+               <div className="text-zinc-600 flex items-center h-full justify-center opacity-50 italic">
+                 Waiting for execution telemetry...
+               </div>
+             ) : (
+               auditLogs.map((log, idx) => (
+                 <div key={idx} className="flex gap-2">
+                   <span className="text-zinc-600 flex-shrink-0">[{log.time}]</span>
+                   <span className={log.type === 'error' ? 'text-red-400' : log.type === 'action' ? 'text-indigo-400' : 'text-emerald-400'}>
+                     {log.message}
+                   </span>
+                 </div>
+               ))
+             )}
+           </div>
+        </div>
+
         {/* Explainability / Confidence Panel */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 backdrop-blur-md shadow-xl">
-           <h2 className="text-sm font-medium tracking-widest text-zinc-500 uppercase mb-4">Explainability & Confidence</h2>
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/40 p-5 backdrop-blur-md shadow-xl">
+           <h2 className="text-sm font-medium tracking-widest text-zinc-500 dark:text-zinc-500 uppercase mb-4">Explainability & Confidence</h2>
            
            <div className="space-y-4">
               <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 transition-colors hover:border-cyan-500/30">
@@ -183,7 +235,7 @@ export default function DemoWorkflow() {
                   </span>
                   <span className="text-xs font-mono text-cyan-500/70 bg-cyan-500/10 px-2 py-0.5 rounded-full">Retrieval</span>
                 </div>
-                <p className="text-xs text-zinc-400 leading-relaxed">
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                   Data sourced from Enterprise Knowledge base and routed to generation engines securely.
                 </p>
               </div>
@@ -203,7 +255,7 @@ export default function DemoWorkflow() {
                   </div>
                   <div className="max-h-52 overflow-y-auto pr-2 mb-4 scrollbar-thin scrollbar-thumb-amber-500/20 scrollbar-track-transparent">
                     <p 
-                      className="text-sm text-zinc-300 leading-relaxed"
+                      className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed"
                       dangerouslySetInnerHTML={{ 
                         __html: formatSimpleMarkdown((approvalRequested as { summary?: string })?.summary || "The workflow has paused and is waiting for your approval to proceed.") 
                       }}

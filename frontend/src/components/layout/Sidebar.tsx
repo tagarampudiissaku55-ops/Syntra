@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { LayoutDashboard, Compass, Layers, CheckSquare, Settings, Activity, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LayoutDashboard, Compass, Layers, CheckSquare, Settings, Activity, PanelLeftClose, PanelLeftOpen, BarChart2 } from "lucide-react";
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navItems = [
     { name: "Mission Control", href: "/", icon: LayoutDashboard },
+    { name: "Analytics", href: "/analytics", icon: BarChart2 },
     { name: "Workflow Studio", href: "/studio", icon: Layers },
     { name: "Knowledge Base", href: "/knowledge", icon: Layers },
     { name: "Active Workflows", href: "/workflows", icon: Activity },

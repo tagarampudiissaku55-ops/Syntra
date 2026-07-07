@@ -1,7 +1,8 @@
 import os
 import time
 import logging
-from typing import AsyncGenerator, Any
+from typing import AsyncGenerator, Any, Optional
+from .models import Prompt, AIResponse, ModelConfig, GenerationConfig, SafetyConfig, RetryConfig, TimeoutConfig
 from groq import AsyncGroq
 from app.core.config import settings
 
@@ -23,19 +24,19 @@ class GroqProvider(BaseProvider):
         api_key = settings.GROQ_API_KEY or "missing_key"
         self.client = AsyncGroq(api_key=api_key)
 
-    async def generate(self, prompt: Prompt, model_config: ModelConfig, gen_config: GenerationConfig, safety_config: SafetyConfig, retry_config: RetryConfig, timeout_config: TimeoutConfig) -> AIResponse:
+    async def generate(self, prompt: Prompt | str, model_config: Optional[ModelConfig] = None, gen_config: Optional[GenerationConfig] = None, safety_config: Optional[SafetyConfig] = None, retry_config: Optional[RetryConfig] = None, timeout_config: Optional[TimeoutConfig] = None) -> AIResponse:
         start_time = time.time()
         
         # Use llama-3.3-70b-versatile as default Groq model if not specified
-        model = model_config.model_name if "llama" in model_config.model_name.lower() or "mixtral" in model_config.model_name.lower() else "llama-3.3-70b-versatile"
+        model = "llama-3.3-70b-versatile" if not model_config else (model_config.model_name if "llama" in model_config.model_name.lower() or "mixtral" in model_config.model_name.lower() else "llama-3.3-70b-versatile")
         
         messages = []
-        if prompt.system:
+        if isinstance(prompt, Prompt) and prompt.system:
             messages.append({"role": "system", "content": prompt.system})
         
         # Combine user prompt and context
-        full_user_content = prompt.user
-        if prompt.context:
+        full_user_content = prompt.user if isinstance(prompt, Prompt) else prompt
+        if isinstance(prompt, Prompt) and prompt.context:
             full_user_content += f"\n\nContext:\n{prompt.context}"
             
         messages.append({"role": "user", "content": full_user_content})
@@ -44,9 +45,9 @@ class GroqProvider(BaseProvider):
         response = await self.client.chat.completions.create(
             model=model,
             messages=messages,
-            temperature=gen_config.temperature,
-            max_tokens=gen_config.max_output_tokens,
-            top_p=gen_config.top_p,
+            temperature=gen_config.temperature if gen_config else 0.7,
+            max_tokens=None,
+            top_p=gen_config.top_p if gen_config else 1.0,
         )
         
         content = response.choices[0].message.content
@@ -60,28 +61,28 @@ class GroqProvider(BaseProvider):
             finish_reason=response.choices[0].finish_reason
         )
 
-    async def generate_structured(self, prompt: Prompt, schema: Any, model_config: ModelConfig, gen_config: GenerationConfig, safety_config: SafetyConfig, retry_config: RetryConfig, timeout_config: TimeoutConfig) -> AIResponse:
+    async def generate_structured(self, prompt: Prompt | str, schema: Any, model_config: Optional[ModelConfig] = None, gen_config: Optional[GenerationConfig] = None, safety_config: Optional[SafetyConfig] = None, retry_config: Optional[RetryConfig] = None, timeout_config: Optional[TimeoutConfig] = None) -> AIResponse:
         # Since the DAG compiler passes Pydantic models in `schema`, and Groq's JSON mode doesn't take 
         # a strict Pydantic model natively like Gemini does, we will instruct the model to return JSON
         # and enforce json_object response_format.
         
         start_time = time.time()
-        model = model_config.model_name if "llama" in model_config.model_name.lower() or "mixtral" in model_config.model_name.lower() else "llama-3.3-70b-versatile"
+        model = "llama-3.3-70b-versatile" if not model_config else (model_config.model_name if "llama" in model_config.model_name.lower() or "mixtral" in model_config.model_name.lower() else "llama-3.3-70b-versatile")
         
-        system_instruction = prompt.system or "You are a helpful API that outputs only valid JSON."
+        system_instruction = (prompt.system if isinstance(prompt, Prompt) else "") or "You are a helpful API that outputs only valid JSON."
         system_instruction += f"\n\nYou MUST return your response as a valid JSON object matching this schema:\n{schema.model_json_schema()}"
         
         messages = [
             {"role": "system", "content": system_instruction},
-            {"role": "user", "content": prompt.user}
+            {"role": "user", "content": prompt.user if isinstance(prompt, Prompt) else prompt}
         ]
         
         response = await self.client.chat.completions.create(
             model=model,
             messages=messages,
-            temperature=gen_config.temperature,
-            max_tokens=gen_config.max_output_tokens,
-            top_p=gen_config.top_p,
+            temperature=gen_config.temperature if gen_config else 0.7,
+            max_tokens=None,
+            top_p=gen_config.top_p if gen_config else 1.0,
             response_format={"type": "json_object"}
         )
         
