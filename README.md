@@ -2,6 +2,12 @@
   <h1>🚀 Syntra OS</h1>
   <p><b>Where Intelligent Workflows Think, Decide, and Execute.</b></p>
   <p>An Enterprise AI Platform that orchestrates autonomous agents for complex business processes.</p>
+  
+  <br/>
+  <a href="https://syntra-rho.vercel.app/" target="_blank">
+    <img src="https://img.shields.io/badge/🔴_Live_Demo-Visit_Syntra_OS-indigo?style=for-the-badge&logo=vercel" alt="Live Demo" />
+  </a>
+  <br/>
 </div>
 
 <br/>
