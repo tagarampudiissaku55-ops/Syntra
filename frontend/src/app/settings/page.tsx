@@ -123,7 +123,7 @@ export default function SettingsPage() {
                       placeholder="AIzaSy..."
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
                     />
-                    <p className="mt-1 text-xs text-zinc-500">Saved securely in your browser's local storage.</p>
+                    <p className="mt-1 text-xs text-zinc-500">Saved securely in your browser&apos;s local storage.</p>
                   </div>
 
                 </div>
