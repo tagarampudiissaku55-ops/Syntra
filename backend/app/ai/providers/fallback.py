@@ -1,5 +1,5 @@
 import logging
-from typing import Any, AsyncGenerator, List
+from typing import Any, AsyncGenerator, List, Optional
 from .base import BaseProvider
 from .models import Prompt, AIResponse, ModelConfig, GenerationConfig, SafetyConfig, RetryConfig, TimeoutConfig
 
@@ -19,7 +19,15 @@ class RobustFallbackProvider(BaseProvider):
             raise ValueError("RobustFallbackProvider requires at least one provider.")
         self.providers = providers
 
-    async def generate(self, prompt: Prompt, model_config: ModelConfig, gen_config: GenerationConfig, safety_config: SafetyConfig, retry_config: RetryConfig, timeout_config: TimeoutConfig) -> AIResponse:
+    async def generate(
+        self, 
+        prompt: Prompt, 
+        model_config: Optional[ModelConfig] = None, 
+        gen_config: Optional[GenerationConfig] = None, 
+        safety_config: Optional[SafetyConfig] = None, 
+        retry_config: Optional[RetryConfig] = None, 
+        timeout_config: Optional[TimeoutConfig] = None
+    ) -> AIResponse:
         last_exception = None
         for provider in self.providers:
             try:
@@ -34,7 +42,16 @@ class RobustFallbackProvider(BaseProvider):
         # If all providers fail, raise the last exception
         raise last_exception
 
-    async def generate_structured(self, prompt: Prompt, schema: Any, model_config: ModelConfig, gen_config: GenerationConfig, safety_config: SafetyConfig, retry_config: RetryConfig, timeout_config: TimeoutConfig) -> AIResponse:
+    async def generate_structured(
+        self, 
+        prompt: Prompt, 
+        schema: Any, 
+        model_config: Optional[ModelConfig] = None, 
+        gen_config: Optional[GenerationConfig] = None, 
+        safety_config: Optional[SafetyConfig] = None, 
+        retry_config: Optional[RetryConfig] = None, 
+        timeout_config: Optional[TimeoutConfig] = None
+    ) -> AIResponse:
         last_exception = None
         for provider in self.providers:
             try:

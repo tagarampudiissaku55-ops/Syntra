@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.18.5",
+    "aiohttp>=3.11.10",
     "fastapi>=0.139.0",
     "google-generativeai>=0.8.6",
     "groq>=1.5.0",

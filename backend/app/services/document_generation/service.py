@@ -34,9 +34,67 @@ class DocumentGenerationService:
                 return "### ⚠️ AI Rate Limit Exceeded\n\nThe Google Gemini API is currently enforcing a rate limit (Error 429 - Quota Exceeded).\n\n**Action Required:** Please wait 30 seconds before running another workflow, or upgrade your API tier."
             return f"### ⚠️ Generation Failed\n\nAn unexpected error occurred while communicating with the AI Provider:\n\n`{error_str}`"
 
+    async def generate_workflow_documents(self, request: str, context: str) -> Dict[str, str]:
+        """
+        Dynamically generate visually structured markdown documents based on the actual request.
+        """
+        logger.info(f"Generating dynamic workflow documents for: {request}")
+        
+        main_prompt = f"""
+        You are an expert AI enterprise assistant.
+        
+        Task Description:
+        "{request}"
+        
+        Retrieved Enterprise Context:
+        {context}
+        
+        Instructions:
+        1. Fully address the task description using the provided context.
+        2. Format your response beautifully using Markdown. Use clear headings (##, ###), bulleted lists, and bold text for emphasis.
+        3. Make it look perfectly aligned, highly structured, and visually friendly.
+        """
+        
+        summary_prompt = f"""
+        You are an expert AI summarizer.
+        
+        Task Description:
+        "{request}"
+        
+        Retrieved Enterprise Context:
+        {context}
+        
+        Instructions:
+        Create a very short, punchy executive summary for a human manager to review and approve.
+        Highlight key decisions, extracted data points, or actions taken.
+        Format beautifully using Markdown (bolding, short bullet points).
+        """
+        
+        email_prompt = f"""
+        You are an expert AI communication assistant.
+        
+        Task Description:
+        "{request}"
+        
+        Instructions:
+        Draft a brief, professional notification email indicating that the task has been completed and is pending review or finalized.
+        """
+        
+        results = await asyncio.gather(
+            self.provider.generate(prompt=main_prompt),
+            self.provider.generate(prompt=summary_prompt),
+            self.provider.generate(prompt=email_prompt)
+        )
+        
+        return {
+            "Main_Report": results[0].content,
+            "Executive_Summary": results[1].content,
+            "Notification_Email": results[2].content
+        }
+
     async def generate_onboarding_package(self, context: str) -> Dict[str, str]:
         """
-        Generate the full suite of onboarding documents.
+        Generate the full suite of onboarding documents (Legacy/Milestone 15 hardcoded).
         """
         logger.info("Generating onboarding package documents...")
         

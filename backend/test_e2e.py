@@ -13,7 +13,7 @@ def test():
     print("Generating workflow...")
     workflow = post_json(f"{BASE_URL}/workflows/generate", {
         "user_id": "u1",
-        "request": "Extract data from a file, search knowledge base, generate a report, send an email to the user, and ask for human approval."
+        "request": "Extract the key revenue figures for Q3 2024 from the finance documents, generate a short markdown financial summary, and send it to the director for approval."
     })
     
     wf_id = workflow["workflow_id"]
@@ -23,7 +23,7 @@ def test():
         
     print("\nExecuting workflow...")
     exec_res = post_json(f"{BASE_URL}/workflows/{wf_id}/execute", {})
-    print(f"Execution started with session: {exec_res['session_id']}")
+    print(f"Execution Output: {json.dumps(exec_res, indent=2)}")
 
 if __name__ == "__main__":
     test()

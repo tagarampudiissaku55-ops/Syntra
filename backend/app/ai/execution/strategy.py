@@ -91,15 +91,24 @@ class SequentialExecutionStrategy(BaseExecutionStrategy):
                     
                 elif node.agent_id == "agent_generation":
                     context_text = execution_context_data.get("knowledge_result", "Standard default context.")
-                    documents = await document_generation_service.generate_onboarding_package(context_text)
+                    
+                    # Dynamically generate documents based on the original request
+                    documents = await document_generation_service.generate_workflow_documents(
+                        request=original_request, 
+                        context=context_text
+                    )
+                    
                     output = {"documents_generated": documents}
                     execution_context_data["generated_documents"] = documents
                     
                 elif node.agent_id == "agent_system":
                     docs = execution_context_data.get("generated_documents", {})
+                    # Look for Executive_Summary dynamically, fallback if missing
+                    summary = docs.get("Executive_Summary", docs.get("hr_summary", f"Review required for workflow task: {original_request}"))
+                    
                     await execution_engine.await_approval(session_id, {
                         "approval_type": "DYNAMIC_REVIEW",
-                        "summary": docs.get("hr_summary", f"Review required for step: {node_name}"),
+                        "summary": summary,
                         "generated_documents": docs
                     })
                     output = {"status": "WAITING_APPROVAL"}
@@ -108,7 +117,8 @@ class SequentialExecutionStrategy(BaseExecutionStrategy):
                     from app.core.logging import get_workflow_logger
                     workflow_logger = get_workflow_logger()
                     docs = execution_context_data.get("generated_documents", {})
-                    email_body = docs.get("welcome_email", "Default welcome message.")
+                    # Dynamically fetch the notification email
+                    email_body = docs.get("Notification_Email", docs.get("welcome_email", f"Task '{original_request}' completed."))
                     workflow_logger.info("email_dispatch", "Simulated sending email.", {"body": email_body[:50]})
                     output = {"status": "email_sent", "email_preview": email_body[:50]}
                     
@@ -116,10 +126,15 @@ class SequentialExecutionStrategy(BaseExecutionStrategy):
                     from app.ai.providers.manager import provider_manager
                     provider = provider_manager.get()
                     context_text = execution_context_data.get("knowledge_result", original_request)
-                    prompt = f"Extract the top 3 key data points from the following text:\n{context_text}"
+                    prompt = f"Analyze the following context based on this request: '{original_request}'.\n\nExtract the most crucial data points and format them beautifully as a Markdown list.\n\nContext:\n{context_text}"
                     res = await provider.generate(prompt=prompt)
                     output = {"extracted_data": res.content}
                     execution_context_data["extracted_data"] = output["extracted_data"]
+                    
+                    # Append extracted data to the generated documents for frontend visibility
+                    if "generated_documents" not in execution_context_data:
+                        execution_context_data["generated_documents"] = {}
+                    execution_context_data["generated_documents"]["Data_Analysis"] = res.content
 
                 else:
                     # Graceful fallback for unimplemented agents
