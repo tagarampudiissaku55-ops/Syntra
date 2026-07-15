@@ -27,7 +27,13 @@ const fetchDocuments = async (): Promise<Document[]> => {
   } catch {
     // DEMO MODE: Fallback if backend is unreachable
     console.warn("Backend unreachable, falling back to demo documents.");
-    return [
+    
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("syntra_demo_docs");
+      if (stored) return JSON.parse(stored);
+    }
+    
+    const initialDemoDocs: Document[] = [
       {
         document_id: "demo-1",
         name: "Q3_Financial_Report.pdf",
@@ -47,6 +53,11 @@ const fetchDocuments = async (): Promise<Document[]> => {
         created_at: new Date(Date.now() - 172800000).toISOString()
       }
     ];
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("syntra_demo_docs", JSON.stringify(initialDemoDocs));
+    }
+    return initialDemoDocs;
   }
 };
 
@@ -97,6 +108,12 @@ export default function KnowledgeBasePage() {
           status: "indexed" as StatusType,
           created_at: new Date().toISOString()
         };
+        
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("syntra_demo_docs");
+          const docs = stored ? JSON.parse(stored) : [];
+          localStorage.setItem("syntra_demo_docs", JSON.stringify([newDoc, ...docs]));
+        }
         
         queryClient.setQueryData(["documents"], (old: Document[] | undefined) => [newDoc, ...(old || [])]);
       }
@@ -187,6 +204,7 @@ export default function KnowledgeBasePage() {
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
+                    onClick={() => alert(`[Document Viewer]\nOpening: ${doc.name}\n\n(In a full deployment, this launches the embedded PDF/Text reader)`)}
                     className="hover:bg-zinc-900/30 transition-colors group cursor-pointer"
                   >
                     <td className="px-6 py-4 font-medium text-zinc-200">
