@@ -12,10 +12,10 @@ export function Sidebar() {
   const navItems = [
     { name: "Mission Control", href: "/", icon: LayoutDashboard },
     { name: "Analytics", href: "/analytics", icon: BarChart2 },
-    { name: "Workflow Studio", href: "/studio", icon: Workflow },
-    { name: "Knowledge Base", href: "/knowledge", icon: Database },
-    { name: "Active Workflows", href: "/workflows", icon: Activity },
-    { name: "Approvals", href: "/approvals", icon: CheckSquare },
+    { name: "Agent Orchestration", href: "/studio", icon: Workflow },
+    { name: "Enterprise Context", href: "/knowledge", icon: Database },
+    { name: "Live Operations", href: "/workflows", icon: Activity },
+    { name: "Governance & Approvals", href: "/approvals", icon: CheckSquare },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 

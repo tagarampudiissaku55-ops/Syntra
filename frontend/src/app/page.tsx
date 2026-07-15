@@ -153,30 +153,30 @@ export default function MissionControl() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex flex-col justify-center shadow-xl group hover:border-indigo-500/30 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <Activity className="h-4 w-4 text-indigo-400" />
-                <span className="text-xs text-zinc-500 uppercase tracking-wider">Active Missions</span>
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">Live Agent Missions</span>
               </div>
               <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-200"><AnimatedCounter value={24} duration={1} /></div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex flex-col justify-center shadow-xl group hover:border-amber-500/30 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <ShieldCheck className="h-4 w-4 text-amber-400" />
-                <span className="text-xs text-zinc-500 uppercase tracking-wider">Pending Approvals</span>
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">Decisions Governed</span>
               </div>
               <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-200"><AnimatedCounter value={8} duration={1.5} /></div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex flex-col justify-center shadow-xl group hover:border-emerald-500/30 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <Layers className="h-4 w-4 text-emerald-400" />
-                <span className="text-xs text-zinc-500 uppercase tracking-wider">Indexed Documents</span>
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">Enterprise Grounding</span>
               </div>
-              <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-200"><AnimatedCounter value={142} duration={2} /></div>
+              <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-200"><AnimatedCounter value={9412} duration={2} /></div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex flex-col justify-center shadow-xl group hover:border-cyan-500/30 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <Cpu className="h-4 w-4 text-cyan-400" />
-                <span className="text-xs text-zinc-500 uppercase tracking-wider">AI Success Rate</span>
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">Hours Saved by AI</span>
               </div>
-              <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-200"><AnimatedCounter value={99} duration={2} />%</div>
+              <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-200"><AnimatedCounter value={240} duration={2} /></div>
             </motion.div>
           </>
         )}

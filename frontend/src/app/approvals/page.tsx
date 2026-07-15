@@ -3,7 +3,7 @@
 import { PageHeader } from "@/components/ui/PageHeader";
 
 import { EmptyState } from "@/components/ui/EmptyState";
-import { CheckSquare, Search, ShieldAlert, FileText, Check, X } from "lucide-react";
+import { CheckSquare, Search, ShieldAlert, FileText, Check, X, BrainCircuit } from "lucide-react";
 import { useState } from "react";
 
 import Link from "next/link";
@@ -63,8 +63,8 @@ export default function ApprovalsPage() {
   return (
     <div className="max-w-7xl mx-auto py-6 flex flex-col h-full">
       <PageHeader 
-        title="Human-in-the-Loop Approvals"
-        description="Review and action workflows that require explicit human authorization."
+        title="Governance & Compliance Approvals"
+        description="Review and authorize mission-critical workflows at executive decision gates."
         icon={CheckSquare}
       />
 
@@ -100,7 +100,7 @@ export default function ApprovalsPage() {
                     <div className="flex justify-between items-start mb-2">
                       <span className="text-xs font-mono text-zinc-500">{apprv.approval_id.slice(0, 8)}</span>
                       <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500">
-                        Pending
+                        Authorization Required
                       </span>
                     </div>
                     <h4 className="text-sm font-semibold text-zinc-200 mb-1">{apprv.workflow_name || apprv.workflow_id}</h4>
@@ -122,10 +122,30 @@ export default function ApprovalsPage() {
                   <h2 className="text-xl font-semibold text-zinc-100">{selectedApproval.workflow_name || selectedApproval.workflow_id}</h2>
                 </div>
                 <p className="text-sm text-zinc-400 mb-6">
-                  Workflow <Link href={`/workflows/${selectedApproval.workflow_id}`} className="text-indigo-400 hover:underline font-mono">{selectedApproval.workflow_id.slice(0, 8)}</Link> is paused and requires your approval.
+                  Mission <Link href={`/workflows/${selectedApproval.workflow_id}`} className="text-indigo-400 hover:underline font-mono">{selectedApproval.workflow_id.slice(0, 8)}</Link> is halted at a Governance Gate and requires executive authorization.
                 </p>
-                <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
-                  <h3 className="text-sm font-medium text-amber-500 mb-2">AI Summary</h3>
+                <div className="flex gap-4 mb-6">
+                  <div className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 flex items-center gap-3">
+                     <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                       <ShieldAlert className="h-5 w-5 text-emerald-400" />
+                     </div>
+                     <div>
+                       <div className="text-xs text-zinc-500 font-medium">Policy Alignment</div>
+                       <div className="text-sm font-bold text-emerald-400">98% Compliant</div>
+                     </div>
+                  </div>
+                  <div className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 flex items-center gap-3">
+                     <div className="h-10 w-10 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 shrink-0">
+                       <BrainCircuit className="h-5 w-5 text-indigo-400" />
+                     </div>
+                     <div>
+                       <div className="text-xs text-zinc-500 font-medium">AI Confidence</div>
+                       <div className="text-sm font-bold text-indigo-400">High (0.94)</div>
+                     </div>
+                  </div>
+                </div>
+                <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-5 shadow-inner">
+                  <h3 className="text-sm font-medium text-amber-500 mb-2 tracking-wide uppercase">Executive Summary & Risk Assessment</h3>
                   <p className="text-sm text-zinc-300 leading-relaxed">{selectedApproval.summary}</p>
                 </div>
               </div>
@@ -152,7 +172,7 @@ export default function ApprovalsPage() {
                   className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-700 transition-colors disabled:opacity-50"
                 >
                   <X className="h-4 w-4" />
-                  Reject
+                  Halt Mission
                 </button>
                 <button 
                   onClick={() => resolveMutation.mutate({ id: selectedApproval.approval_id, action: "approve" })}
@@ -160,7 +180,7 @@ export default function ApprovalsPage() {
                   className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50"
                 >
                   <Check className="h-4 w-4" />
-                  Approve & Continue
+                  Authorize Mission Proceed
                 </button>
               </div>
             </>

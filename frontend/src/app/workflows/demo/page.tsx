@@ -139,7 +139,7 @@ export default function DemoWorkflow() {
             </div>
             <span className="text-xs font-mono text-zinc-500 dark:text-zinc-500">Session ID: exec-{(approvalRequested as { session_id?: string })?.session_id || "demo"}</span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Workflow Execution</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Autonomous Mission Execution</h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
             Running business orchestration logic based on retrieved enterprise knowledge.
           </p>
@@ -152,7 +152,7 @@ export default function DemoWorkflow() {
           transition={{ delay: 0.1 }}
           className="flex flex-col gap-2"
         >
-          <h2 className="text-sm font-medium tracking-widest text-zinc-500 dark:text-zinc-500 uppercase px-1">Execution Graph</h2>
+          <h2 className="text-sm font-medium tracking-widest text-zinc-500 dark:text-zinc-500 uppercase px-1">Agent Collaboration Plan</h2>
           <DAGViewer />
         </motion.div>
         
@@ -191,13 +191,65 @@ export default function DemoWorkflow() {
                   }
                 }
 
+                if (key.includes("Slack") && isIntegration) {
+                  try {
+                    const cleanJson = content.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const obj = JSON.parse(cleanJson);
+                    return (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={idx} className="p-5 rounded-xl border border-purple-500/30 bg-white dark:bg-zinc-950 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                        <div className="flex items-center gap-2 mb-4 border-b border-zinc-100 dark:border-zinc-800/50 pb-3">
+                          <div className="w-5 h-5 rounded bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold text-xs">#</div>
+                          <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{obj.channel}</span>
+                        </div>
+                        <div className="flex gap-4">
+                          <div className="w-10 h-10 rounded bg-indigo-600 shrink-0 flex items-center justify-center text-white font-bold shadow-md">SY</div>
+                          <div className="flex-1">
+                            <div className="flex items-baseline gap-2 mb-1">
+                              <span className="font-bold text-zinc-900 dark:text-zinc-100">Syntra OS</span>
+                              <span className="text-[10px] font-semibold bg-zinc-200 dark:bg-zinc-800 text-zinc-500 px-1.5 rounded">APP</span>
+                              <span className="text-xs text-zinc-500 ml-2">Just now</span>
+                            </div>
+                            <div className="space-y-3 text-sm text-zinc-800 dark:text-zinc-300">
+                              {obj.blocks?.map((block: { type: string; text?: { text: string } }, i: number) => (
+                                <div key={i} className={block.type === 'header' ? 'font-bold text-lg text-zinc-900 dark:text-zinc-100' : ''}>
+                                  {block.text?.text}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  } catch {}
+                }
+
+                if (key.includes("Gmail") && isIntegration) {
+                  try {
+                    const cleanJson = content.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const obj = JSON.parse(cleanJson);
+                    return (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={idx} className="p-5 rounded-xl border border-rose-500/30 bg-white dark:bg-zinc-950 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
+                        <div className="mb-4 border-b border-zinc-100 dark:border-zinc-800/50 pb-4 text-sm">
+                          <div className="flex mb-2"><span className="text-zinc-500 w-16">To:</span> <span className="font-medium text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-900 px-2 rounded-full">{obj.to}</span></div>
+                          <div className="flex items-start"><span className="text-zinc-500 w-16 mt-0.5">Subject:</span> <span className="font-semibold text-zinc-900 dark:text-zinc-100">{obj.subject}</span></div>
+                        </div>
+                        <div className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed px-1">
+                          {obj.body}
+                        </div>
+                      </motion.div>
+                    );
+                  } catch {}
+                }
+
                 return (
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                     key={idx} 
-                    className={`p-4 rounded-xl border shadow-inner ${
+                    className={`p-5 rounded-xl border shadow-sm ${
                       key.includes("Slack") 
                         ? "border-purple-500/30 bg-purple-500/5 dark:bg-purple-900/10"
                         : key.includes("Gmail")
@@ -205,7 +257,7 @@ export default function DemoWorkflow() {
                         : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50"
                     }`}
                   >
-                     <h4 className={`font-semibold mb-2 capitalize flex items-center gap-2 ${
+                     <h4 className={`font-semibold mb-3 capitalize flex items-center gap-2 ${
                        key.includes("Slack") ? "text-purple-600 dark:text-purple-400" :
                        key.includes("Gmail") ? "text-rose-600 dark:text-rose-400" :
                        "text-zinc-900 dark:text-zinc-100"
@@ -220,8 +272,8 @@ export default function DemoWorkflow() {
                           </span>
                         )}
                      </h4>
-                     <pre className={`whitespace-pre-wrap font-sans text-xs ${
-                       isIntegration ? "font-mono text-zinc-600 dark:text-zinc-400 p-3 bg-zinc-100 dark:bg-zinc-950 rounded-lg overflow-x-auto" : "text-zinc-600 dark:text-zinc-400"
+                     <pre className={`whitespace-pre-wrap font-sans text-sm ${
+                       isIntegration ? "font-mono text-zinc-600 dark:text-zinc-400 p-4 bg-zinc-100 dark:bg-zinc-950 rounded-lg overflow-x-auto border border-zinc-200 dark:border-zinc-800" : "text-zinc-700 dark:text-zinc-300 leading-relaxed"
                      }`}>
                         {formattedContent}
                      </pre>
@@ -252,7 +304,7 @@ export default function DemoWorkflow() {
            <div className="flex items-center justify-between mb-4">
              <h2 className="text-sm font-medium tracking-widest text-zinc-500 dark:text-zinc-500 uppercase flex items-center">
                <Fingerprint className="w-4 h-4 mr-2" />
-               Live Audit Logs
+               Live Agent Activity Stream
              </h2>
              <span className="flex h-2 w-2 relative">
                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>

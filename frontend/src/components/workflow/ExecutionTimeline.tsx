@@ -11,8 +11,8 @@ export function ExecutionTimeline() {
     {
       id: 1,
       type: "completed",
-      title: "Workflow Initialized",
-      description: "Mission: Execute requested business logic",
+      title: "Mission Authorized",
+      description: "Objective: Formulate and execute business strategy",
       time: new Date(baseTime.getTime() + 0).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' }),
       icon: PlayCircle,
       color: "text-indigo-500",
@@ -22,8 +22,8 @@ export function ExecutionTimeline() {
     {
       id: 2,
       type: "completed",
-      title: "Plan Generated",
-      description: "Conductor built a multi-step execution graph",
+      title: "Strategic Plan Formulated",
+      description: "Lead Orchestrator Agent deployed specialized sub-agents",
       time: new Date(baseTime.getTime() + 5000).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' }),
       icon: CheckCircle2,
       color: "text-emerald-500",
@@ -33,8 +33,8 @@ export function ExecutionTimeline() {
     {
       id: 3,
       type: "completed",
-      title: "Enterprise Knowledge Retrieved",
-      description: "Found relevant policy chunks from Knowledge Base",
+      title: "Enterprise Grounding Verified",
+      description: "Retrieved policy chunks from internal Knowledge Base to ensure compliance",
       time: new Date(baseTime.getTime() + 15000).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' }),
       icon: FileText,
       color: "text-cyan-500",
@@ -45,8 +45,8 @@ export function ExecutionTimeline() {
     {
       id: 4,
       type: "in-progress",
-      title: "Agent Active",
-      description: "Cross-referencing parameters against compliance policy",
+      title: "Sub-Agent Execution",
+      description: "Legal Analyst Agent cross-referencing parameters against compliance policy",
       time: new Date(baseTime.getTime() + 18000).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' }),
       icon: Clock,
       color: "text-amber-500",
