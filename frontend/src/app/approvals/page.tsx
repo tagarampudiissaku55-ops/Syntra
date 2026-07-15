@@ -104,7 +104,7 @@ export default function ApprovalsPage() {
                       </span>
                     </div>
                     <h4 className="text-sm font-semibold text-zinc-200 mb-1">{apprv.workflow_name || apprv.workflow_id}</h4>
-                    <p className="text-xs text-zinc-500">{new Date(apprv.created_at).toLocaleString()}</p>
+                    <p className="text-xs text-zinc-500" suppressHydrationWarning>{new Date(apprv.created_at).toLocaleString()}</p>
                   </button>
                 ))}
               </div>
