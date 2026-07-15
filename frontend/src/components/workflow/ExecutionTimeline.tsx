@@ -89,7 +89,7 @@ export function ExecutionTimeline() {
           <div className="flex-1 rounded-xl border border-zinc-800/50 bg-zinc-900/30 p-4 transition-colors hover:bg-zinc-900/50">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-zinc-100">{event.title}</h3>
-              <span className="text-xs font-medium text-zinc-500">{event.time}</span>
+              <span className="text-xs font-medium text-zinc-500" suppressHydrationWarning>{event.time}</span>
             </div>
             <p className="mt-1 text-sm text-zinc-400">{event.description}</p>
             {event.metric && (

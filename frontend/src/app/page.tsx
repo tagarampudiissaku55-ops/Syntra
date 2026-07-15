@@ -10,16 +10,21 @@ function AnimatedCounter({ value, duration = 2 }: { value: number, duration?: nu
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    let start = 0;
+    let current = 0;
     const end = value;
-    const incrementTime = (duration * 1000) / end;
+    const totalSteps = Math.round((duration * 1000) / 16);
+    const stepValue = end / totalSteps;
     
     const timer = setInterval(() => {
-      start += 1;
-      setCount(start);
-      if (start >= end) clearInterval(timer);
-    }, incrementTime);
-
+      current += stepValue;
+      if (current >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, 16);
+    
     return () => clearInterval(timer);
   }, [value, duration]);
 
